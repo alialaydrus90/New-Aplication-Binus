@@ -1,0 +1,4 @@
+public interface ApiService {
+    @GET("users")
+    Call<List<User>> getUsers();
+}
