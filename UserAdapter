@@ -1,0 +1,53 @@
+public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
+    private List<User> users;
+    private OnItemClickListener listener;
+
+    public UserAdapter(List<User> users, OnItemClickListener listener) {
+        this.users = users;
+        this.listener = listener;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_user, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        User user = users.get(position);
+        holder.textViewName.setText(user.getName());
+        holder.textViewEmail.setText(user.getEmail());
+        holder.textViewAddress.setText(user.getAddress().getStreet() + ", " + user.getAddress().getCity() + ", " + user.getAddress().getZipcode());
+
+        // Load gambar dummy dengan Glide
+        Glide.with(holder.itemView.getContext())
+             .load("https://via.placeholder.com/150") // URL gambar dummy
+             .into(holder.imageView);
+
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(user));
+    }
+
+    @Override
+    public int getItemCount() {
+        return users.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView imageView;
+        TextView textViewName, textViewEmail, textViewAddress;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            imageView = itemView.findViewById(R.id.imageView);
+            textViewName = itemView.findViewById(R.id.textViewName);
+            textViewEmail = itemView.findViewById(R.id.textViewEmail);
+            textViewAddress = itemView.findViewById(R.id.textViewAddress);
+        }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(User user);
+    }
+}
