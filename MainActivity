@@ -1,0 +1,46 @@
+public class MainActivity extends AppCompatActivity {
+    private RecyclerView recyclerView;
+    private UserAdapter adapter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        fetchUsers();
+    }
+
+    private void fetchUsers() {
+        Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl("https://jsonplaceholder.typicode.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build();
+
+        ApiService service = retrofit.create(ApiService.class);
+        Call<List<User>> call = service.getUsers();
+
+        call.enqueue(new Callback<List<User>>() {
+            @Override
+            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                if (response.isSuccessful()) {
+                    List<User> users = response.body();
+                    adapter = new UserAdapter(users, user -> {
+                        Intent intent = new Intent(MainActivity.this, MapActivity.class);
+                        intent.putExtra("lat", user.getAddress().getGeo().getLat());
+                        intent.putExtra("lng", user.getAddress().getGeo().getLng());
+                        startActivity(intent);
+                    });
+                    recyclerView.setAdapter(adapter);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<User>> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
+}
